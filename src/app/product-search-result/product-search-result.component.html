@@ -1,0 +1,29 @@
+<div class="product-search-result">
+
+  <a [href]="product.url" target="_blank">
+    <div class="thumbnail">
+      <div>
+        <img [src]="product.thumbnail">
+      </div>
+    </div>
+  </a>
+
+  <div>
+    <div class="title">
+      <a [href]="product.url" target="_blank"> {{ product.title }} </a>
+    </div>
+    <div>
+      <!-- [{{ product.score.toFixed(2) }}] -->
+      {{ product.reviews.rating.toFixed(1) }}<span class="star">★ </span>
+      <span class="num-reviews">({{ product.reviews.total_reviews.toLocaleString() }})</span>
+      <!-- {{ product.matches }} -->
+    </div>
+    <div>
+      <span class="current-price">{{ product.price.current_price | currency }} </span>
+      <span class="prime" *ngIf="product.amazonPrime">
+        <span class="check">✔</span>prime
+      </span>
+    </div>
+  </div>
+
+</div>

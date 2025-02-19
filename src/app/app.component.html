@@ -1,0 +1,14 @@
+<div id="content-container">
+  <div id="search">
+    <input type="text" name="searchQuery" id="searchQuery" [(ngModel)]="query" placeholder="Search Amazon" (keypress)="foo($event)"/>
+    <button type="button" class="landscape" (click)="search()">Search</button>
+    <button type="button" class="portrait" (click)="search()">🔍</button>
+  </div>
+  <br>
+  <div>
+    <div class="product-search-result" *ngFor="let product of products">
+      <app-product-search-result [product]="product">
+      </app-product-search-result>
+    </div>
+  </div>
+</div>
