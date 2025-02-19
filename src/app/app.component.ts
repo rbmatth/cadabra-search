@@ -14,7 +14,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class AppComponent {
   title = 'Amazon Search';
-  query = 'microtik';
+  query = '';
   products: any[] = [];
 
   constructor(
