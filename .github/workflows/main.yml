@@ -75,5 +75,5 @@ jobs:
       - name: echo
         run: |
           echo <<EOF
-          ${{ steps.deployment.outputs }}
+          ${{ toJson(steps.deployment.outputs) }}
           EOF
