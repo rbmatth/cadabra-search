@@ -51,13 +51,13 @@ jobs:
         run: ls
 
       - name: List files
-        run: ls dist/cadabra-search/browser
+        run: ls dist
 
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
         with:
-          path: dist/cadabra-search/browser
+          path: dist/browser
 
   # Deployment job
   deploy:
