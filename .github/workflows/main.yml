@@ -38,5 +38,11 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
 
-      - name: Run a one-line script
+      - name: Install npm packages
         run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: List files
+        run: ls
