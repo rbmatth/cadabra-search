@@ -47,7 +47,10 @@ jobs:
           path: dist/browser
 
       - name: echo
-        run: echo `${{ toJson(steps.deployment.outputs) }}`
+        run: |
+          echo <<EOF
+          ${{ toJson(steps.deployment.outputs) }}
+          EOF
 
   # Deployment job
   deploy:
