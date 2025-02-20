@@ -23,6 +23,7 @@ export class AppComponent {
   ) {}
 
   ngOnInit() {
+    console.log('ngOnInit');
     this.route.queryParams.subscribe(foo => {
       this.scraper.searchUrl = Object.keys(foo)[0];
     });
