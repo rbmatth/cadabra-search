@@ -44,5 +44,11 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: pwd
+        run: pwd
+
       - name: List files
         run: ls
+
+      - name: List files
+        run: ls ..
