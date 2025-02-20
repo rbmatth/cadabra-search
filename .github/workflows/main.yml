@@ -38,7 +38,7 @@ jobs:
         run: npm install
 
       - name: Build project
-        run: ng build --base-href /cadabra-search/
+        run: npx ng build --base-href /cadabra-search/
 
       - name: Upload static files as artifact
         id: deployment
