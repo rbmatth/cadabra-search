@@ -47,9 +47,7 @@ jobs:
           path: dist/browser
 
       - name: echo
-        run: |
-          echo ${{ github.event.repository.name }}
-          ps
+        run: echo ${{ toJson(github.event.repository.name) }}
 
   # Deployment job
   deploy:
