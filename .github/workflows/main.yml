@@ -76,5 +76,5 @@ jobs:
       - name: echo
         run: |
           echo <<EOF
-          ${{ toJson(inputs) }}
+          ${{ toJson(job) }}
           EOF
