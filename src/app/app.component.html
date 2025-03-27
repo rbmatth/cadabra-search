@@ -1,6 +1,6 @@
 <div id="content-container">
   <div id="search">
-    <input type="text" name="searchQuery" id="searchQuery" [(ngModel)]="query" placeholder="Search Amazon"/>
+    <input type="text" name="searchQuery" id="searchQuery" [(ngModel)]="query" placeholder="Search Amazon" (keyup)="keyUp($event)"/>
     <button type="button" class="landscape" (click)="search()">Search</button>
     <button type="button" class="portrait" (click)="search()">🔍</button>
   </div>

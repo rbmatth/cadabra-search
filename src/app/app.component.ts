@@ -24,8 +24,6 @@ export class AppComponent {
   ) { }
 
   ngOnInit() {
-    document.addEventListener("keyup", this.keyUp);
-
     this.route.queryParams.subscribe(params => {
       this.scraper.searchUrl = Object.keys(params)[0];
     });
@@ -55,7 +53,6 @@ export class AppComponent {
   }
 
   keyUp = (event: KeyboardEvent) => {
-    this.lastKey = `${event.key} ${event.target?.toString()}`; 
-    if (event.code == 'Enter') this.search();
+    if (event.key == 'Enter') this.search();
   }
 }
