@@ -24,16 +24,11 @@ export class AppComponent {
   ) { }
 
   ngOnInit() {
-    document.addEventListener("keyup", (event) => {
-      console.log(event);
-      this.lastKey = event.key;
-    });
+    document.addEventListener("keyup", this.keyUp);
 
-    console.log('ngOnInit');
-    this.route.queryParams.subscribe(foo => {
-      this.scraper.searchUrl = Object.keys(foo)[0];
+    this.route.queryParams.subscribe(params => {
+      this.scraper.searchUrl = Object.keys(params)[0];
     });
-    // this.search();
   }
 
   async search() {
@@ -57,11 +52,10 @@ export class AppComponent {
     this.products = this.products
       // .filter((p) => p.matches > 0)
       .sort((a, b) => b.matches - a.matches);
-
-    // console.log(this.products);
   }
 
-  foo(event: KeyboardEvent) {
+  keyUp = (event: KeyboardEvent) => {
+    this.lastKey = `${event.key} ${event.target?.toString()}`; 
     if (event.code == 'Enter') this.search();
   }
 }
