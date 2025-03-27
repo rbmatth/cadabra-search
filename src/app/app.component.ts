@@ -16,13 +16,19 @@ export class AppComponent {
   title = 'Amazon Search';
   query = '';
   products: any[] = [];
+  lastKey = "";
 
   constructor(
     private scraper: AmazonScraperService,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit() {
+    document.addEventListener("keyup", (event) => {
+      console.log(event);
+      this.lastKey = event.key;
+    });
+
     console.log('ngOnInit');
     this.route.queryParams.subscribe(foo => {
       this.scraper.searchUrl = Object.keys(foo)[0];
@@ -36,6 +42,7 @@ export class AppComponent {
     this.products = await this.scraper.search(this.query);
     // this.products = sampleProducts;
     this.products = this.products
+      .filter((value, index, self) => index == self.indexOf(self.find(p => p.aisn == value.aisn)))
       .filter((p) => !!p.reviews.rating)
       .sort((a, b) => b.score! - a.score!);
 
