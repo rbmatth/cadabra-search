@@ -4,9 +4,6 @@
     <button type="button" class="landscape" (click)="search()">Search</button>
     <button type="button" class="portrait" (click)="search()">🔍</button>
   </div>
-  <div style="text-align: center;">
-    {{ lastKey }}
-  </div>
   <br>
   <div>
     <div class="product-search-result" *ngFor="let product of products">

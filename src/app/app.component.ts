@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { AmazonScraperService } from './amazon-scraper.service';
@@ -18,21 +18,33 @@ export class AppComponent {
   products: any[] = [];
   lastKey = "";
 
-  constructor(
-    private scraper: AmazonScraperService,
-    private route: ActivatedRoute
-  ) { }
+  private _location = inject(Location);
+  private _scraper = inject(AmazonScraperService)
+  private _route = inject(ActivatedRoute);
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      this.scraper.searchUrl = Object.keys(params)[0];
+    const searchUrl = localStorage.getItem('searchUrl');
+    if (searchUrl) {
+      // console.log('searchUrl retrieved from local storage', searchUrl);
+      this._scraper.searchUrl = searchUrl;
+    }
+
+    this._route.queryParams.subscribe(params => {
+      const searchUrlParam = Object.keys(params)[0];
+      if (!searchUrlParam) return;
+
+      this._scraper.searchUrl = searchUrlParam;
+      this._location.go('/');
+
+      localStorage.setItem('searchUrl', searchUrlParam);
+      // console.log('searchUrl saved to local storage', searchUrlParam);
     });
   }
 
   async search() {
     if (this.query.length < 3) return;
 
-    this.products = await this.scraper.search(this.query);
+    this.products = await this._scraper.search(this.query);
     // this.products = sampleProducts;
     this.products = this.products
       .filter((value, index, self) => index == self.indexOf(self.find(p => p.aisn == value.aisn)))
