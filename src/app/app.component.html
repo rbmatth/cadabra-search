@@ -1,6 +1,7 @@
 <div id="content-container">
   <div id="search">
-    <input type="text" name="searchQuery" id="searchQuery" [(ngModel)]="query" placeholder="Search Amazon" (keyup)="keyUp($event)"/>
+    <input type="text" name="searchQuery" id="searchQuery" [(ngModel)]="query" placeholder="Search Amazon"
+      (keyup)="keyUp($event)" />
     <button type="button" class="landscape" (click)="search()">Search</button>
     <button type="button" class="portrait" (click)="search()">🔍</button>
   </div>
@@ -9,6 +10,19 @@
     <div class="product-search-result" *ngFor="let product of products">
       <app-product-search-result [product]="product">
       </app-product-search-result>
+    </div>
+  </div>
+  <p></p>
+  <div>
+    text <input type="text" [inputMode]="inputMode" [value]="inputMode"><br>
+    search <input type="search"><br>
+    week <input type="week"><br>
+  </div>
+  <p></p>
+  <div>
+    <div *ngFor="let mode of inputModes">
+      <input type="radio" [id]="'id'+mode" name="inputMode" [value]="mode" [(ngModel)]="inputMode" />
+      <label [for]="'id'+mode">{{mode}}</label>
     </div>
   </div>
 </div>
