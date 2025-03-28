@@ -65,9 +65,9 @@ export class AppComponent {
   }
 
   keyUp = (event: KeyboardEvent) => {
-    if (event.key == 'Enter') this.search();
+    if (event.key == 'Enter') {
+      if (document.activeElement instanceof HTMLInputElement) document.activeElement.blur();
+      this.search();
+    }
   }
-
-  inputModes = ['none', 'text', 'decimal', 'numeric', 'tel', 'search', 'email', 'url'];
-  inputMode = "text";
 }
