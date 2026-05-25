@@ -4,10 +4,7 @@ Backlog assessed by effort and impact.
 
 ## High impact, low effort
 
-- **Discount badge / strikethrough** — `price.discounted`, `savings_percent`, `before_price` all calculated; pure template work
 - **Sponsored / Best Seller / Amazon's Choice badges** — data already extracted, zero logic needed
-- **Error handling** — no try/catch on the fetch; silent failures produce a blank UI with no feedback
-- **Empty/zero results state** — one `*ngIf` in template; currently shows blank
 - **Price range filter** — `current_price` is already a number; two inputs + one `.filter()` call
 - **Filter controls** — hide sponsored, Prime-only, min rating threshold; all flags already on the product object
 
