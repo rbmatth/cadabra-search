@@ -133,30 +133,21 @@ Products are deduplicated by ASIN (Amazon Standard Identification Number) to han
 ### Query Matching
 Search results are sorted by how many query terms appear in the product title (case-insensitive), then by Bayesian score.
 
-## Dependencies to Know
+## Deployment
 
-- **@angular/platform-browser-dynamic**: Bootstraps standalone Angular app
-- **cheerio**: Server-side DOM parsing (used in browser context for HTML extraction)
-- **rxjs**: Reactive programming for async operations and observables
-- **zone.js**: Angular change detection zone management
+Push to `main` automatically builds and deploys to GitHub Pages via `.github/workflows/main.yml`. There is no manual deploy step. CI runs `ng build` only — tests are not part of the pipeline and won't block a merge.
 
 ## Testing
 
 - Karma runs tests in Chrome; spec files follow Angular conventions (`*.spec.ts`)
 - Current test suites are minimal stubs
 
-## Performance & Build Budgets
+## Build Budgets
 
-Angular build configured with size budgets:
 - Initial bundle: 500kB warning, 1MB error
 - Component styles: 4kB warning, 8kB error
 
-Ensure new features don't exceed these limits.
+## Conventions
 
-## Known Patterns & Conventions
-
-- **Standalone Components**: All components use standalone APIs (`imports: []`), no NgModules
-- **Async Patterns**: Uses `async/await` in service, signals for loading state
-- **Template Binding**: Two-way binding with `[(ngModel)]`, event binding with `(keyup)`, property binding with `[property]`
-- **CSS**: Plain CSS with media queries for responsiveness; no CSS variables or preprocessors configured
+- All components use standalone APIs (`imports: []`), no NgModules
 
