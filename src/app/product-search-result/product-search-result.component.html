@@ -20,6 +20,8 @@
     </div>
     <div>
       <span class="current-price">{{ product.price.current_price | currency }} </span>
+      <span class="list-price" *ngIf="product.price.discounted">{{ product.price.before_price | currency }}</span>
+      <span class="savings" *ngIf="product.price.discounted">-{{ product.price.savings_percent }}%</span>
       <span class="prime" *ngIf="product.amazonPrime">
         <span class="check">✔</span>prime
       </span>

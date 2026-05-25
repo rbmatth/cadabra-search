@@ -68,3 +68,16 @@ div.thumbnail > div {
 .current-price {
   font-weight: bold;
 }
+
+.list-price {
+  text-decoration: line-through;
+  color: #999;
+  font-size: smaller;
+  margin-left: 4px;
+}
+
+.savings {
+  color: #c00;
+  font-size: smaller;
+  margin-left: 4px;
+}
