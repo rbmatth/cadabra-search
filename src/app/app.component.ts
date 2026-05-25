@@ -24,6 +24,7 @@ export class AppComponent {
   products: any[] = [];
   lastKey = '';
   loading = signal(false);
+  error = signal<string | null>(null);
 
   private _location = inject(Location);
   private _scraper = inject(AmazonScraperService);
@@ -54,6 +55,7 @@ export class AppComponent {
     if (this.query.length < 3) return;
 
     this.loading.set(true);
+    this.error.set(null);
     await this._scraper
       .search(this.query)
       .then((results) => {
@@ -76,6 +78,10 @@ export class AppComponent {
         this.products = this.products
           // .filter((p) => p.matches > 0)
           .sort((a, b) => b.matches - a.matches);
+      })
+      .catch((err: Error) => {
+        this.error.set(err.message);
+        this.products = [];
       })
       .finally(() => {
         this.loading.set(false);

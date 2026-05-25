@@ -54,6 +54,12 @@
   }
 }
 
+.error {
+  color: #c00;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
 div.product-search-result {
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;

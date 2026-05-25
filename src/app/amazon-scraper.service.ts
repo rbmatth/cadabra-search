@@ -10,11 +10,21 @@ export class AmazonScraperService {
   async search(query: string): Promise<any[]> {
     const url = this.searchUrl + query;
 
-    const response = await fetch(url, {
-      headers: {
-        origin: window.location.protocol + '//' + window.location.host,
-      },
-    });
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        headers: {
+          origin: window.location.protocol + '//' + window.location.host,
+        },
+      });
+    } catch {
+      throw new Error('Network error — check your connection or search URL.');
+    }
+
+    if (!response.ok) {
+      throw new Error(`Search failed (${response.status} ${response.statusText}).`);
+    }
+
     const body = await response.text();
     const products = this.extract(body);
     return products;
