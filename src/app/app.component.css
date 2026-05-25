@@ -60,6 +60,12 @@
   margin-bottom: 0.5rem;
 }
 
+.empty {
+  text-align: center;
+  color: #999;
+  margin-top: 2rem;
+}
+
 div.product-search-result {
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;

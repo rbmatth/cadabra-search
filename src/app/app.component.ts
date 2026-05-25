@@ -25,6 +25,7 @@ export class AppComponent {
   lastKey = '';
   loading = signal(false);
   error = signal<string | null>(null);
+  searched = false;
 
   private _location = inject(Location);
   private _scraper = inject(AmazonScraperService);
@@ -84,6 +85,7 @@ export class AppComponent {
         this.products = [];
       })
       .finally(() => {
+        this.searched = true;
         this.loading.set(false);
       });
   }
