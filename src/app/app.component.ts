@@ -30,6 +30,7 @@ export class AppComponent {
 
   hideSponsored = false;
   primeOnly = false;
+  sortBy: 'match' | 'rating' = 'match';
   minRating = 0;
   minPrice: number | null = null;
   maxPrice: number | null = null;
@@ -72,8 +73,7 @@ export class AppComponent {
             (value, index, self) =>
               index == self.findIndex((p) => p.asin == value.asin)
           )
-          .filter((p) => !!p.reviews.rating)
-          .sort((a, b) => b.score - a.score);
+          .filter((p) => !!p.reviews.rating);
 
         const queryParts = this.query.split(/\s+/);
         this.products.forEach((p) => {
@@ -82,10 +82,6 @@ export class AppComponent {
             if (p.title.toLowerCase().includes(q.toLowerCase())) p.matches!++;
           });
         });
-
-        this.products = this.products
-          // .filter((p) => p.matches > 0)
-          .sort((a, b) => (b.matches ?? 0) - (a.matches ?? 0));
       })
       .catch((err: Error) => {
         this.error.set(err.message);
@@ -98,7 +94,7 @@ export class AppComponent {
   }
 
   get visibleProducts(): Product[] {
-    return this.products.filter((p) => {
+    const filtered = this.products.filter((p) => {
       if (this.hideSponsored && p.sponsored) return false;
       if (this.primeOnly && !p.amazonPrime) return false;
       if (p.reviews.rating < this.minRating) return false;
@@ -108,6 +104,12 @@ export class AppComponent {
         return false;
       return true;
     });
+
+    return filtered.sort((a, b) =>
+      this.sortBy === 'match'
+        ? (b.matches ?? 0) - (a.matches ?? 0) || b.score - a.score
+        : b.score - a.score
+    );
   }
 
   keyUp = (event: KeyboardEvent) => {

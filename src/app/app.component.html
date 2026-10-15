@@ -16,6 +16,13 @@
     <label><input type="checkbox" [(ngModel)]="hideSponsored" /> Hide sponsored</label>
     <label><input type="checkbox" [(ngModel)]="primeOnly" /> Prime only</label>
     <label>
+      Sort
+      <select [(ngModel)]="sortBy">
+        <option value="match">Best match</option>
+        <option value="rating">Highest rated</option>
+      </select>
+    </label>
+    <label>
       Min rating
       <select [(ngModel)]="minRating">
         <option [ngValue]="0">Any</option>
