@@ -26,12 +26,15 @@ src/
 ├── index.html                       # HTML shell
 ├── styles.css                       # Global styles (minimal)
 └── app/
-    ├── app.component.ts             # Root component - search UI + result management
-    ├── app.component.html           # Search bar + results list layout
+    ├── app.component.ts             # Root component - search UI, filters, sorting
+    ├── app.component.html           # Search bar + filter bar + results list layout
     ├── app.component.css            # Responsive search container styling
     ├── app.config.ts                # Angular application config
     ├── app.routes.ts                # Routing (currently empty, no sub-routes)
-    ├── amazon-scraper.service.ts    # Core scraping service (Cheerio-based extraction + scoring)
+    ├── amazon-scraper.service.ts    # Core scraping service (Cheerio-based extraction + scoring + search URL validation)
+    ├── product.model.ts             # Product, Price, Reviews, RawProduct interfaces
+    ├── testing/                     # Test-only helpers
+    │   └── search-results.fixture.ts  # Synthetic Amazon results HTML for scraper specs
     ├── loader/                      # Loading spinner component
     │   ├── loader.component.ts
     │   ├── loader.component.html
@@ -40,6 +43,8 @@ src/
         ├── product-search-result.component.ts
         ├── product-search-result.component.html
         └── product-search-result.component.css
+
+Repo root: karma.conf.js (test runner config), eslint.config.js, proxy.conf.js (dev-server proxy), ROADMAP.md (backlog)
 ```
 
 ## Key Architecture Patterns
@@ -48,11 +53,12 @@ src/
 1. User enters query in AppComponent search input
 2. `AppComponent.search()` calls `AmazonScraperService.search(query)`
 3. Service fetches HTML from a configurable search URL and extracts product data using Cheerio
-4. Results are deduplicated by ASIN, filtered for ratings, sorted by relevance score
-5. Results are rendered as a list of ProductSearchResultComponent cards
+4. Results are deduplicated by ASIN and filtered for ratings; each gets a query-match count
+5. `AppComponent.visibleProducts` applies the user's filters and sort on every change (no re-fetch)
+6. Results are rendered as a list of ProductSearchResultComponent cards
 
 ### Scraping & Data Transformation
-The `AmazonScraperService` does two-step processing:
+The `AmazonScraperService` validates the search URL (`validateSearchUrl`: must be a parseable `http(s)` URL) before fetching, then does two-step processing:
 - **Extract Phase**: Parses HTML DOM selectors to find: ASIN, title, thumbnail, price (current/list), ratings, review count, badges (Prime, Best Seller, Amazon's Choice, Sponsored)
 - **Transform Phase**: Normalizes extracted data into a structured format with:
   - Price object (current, discounted, savings)
@@ -60,10 +66,15 @@ The `AmazonScraperService` does two-step processing:
   - Bayesian scoring (combines product rating with review count to surface highly-rated products with substantial reviews)
 
 ### State Management
-- Uses Angular signals (`signal()`) for reactive UI state (loading state)
-- AppComponent manages product list and search query
+- Uses Angular signals (`signal()`) for reactive UI state (loading and error state)
+- AppComponent manages the full product list, search query, and filter/sort settings (`hideSponsored`, `primeOnly`, `minRating`, `minPrice`/`maxPrice`, `sortBy`); filters persist between searches
 - No global state container; component-level state via signals and RxJS subscriptions
 - LocalStorage persists search URL across sessions
+
+### Filters, Sorting & Badges
+- `visibleProducts` (getter on AppComponent) filters the stored `products` by sponsored/Prime/min rating/price range, then sorts a copy; products with no readable price are dropped when a price bound is set
+- Sort modes: `match` (query-term hits, then Bayesian score; default) and `rating` (Bayesian score only)
+- Product cards show Best Seller, Amazon's Choice and Sponsored badges, plus list price and savings for discounted items
 
 ### Responsive Design
 - Media queries for portrait/landscape orientation
@@ -102,6 +113,12 @@ npm test
 npm test -- --include='**/amazon-scraper.service.spec.ts'
 ```
 
+### Lint and CI test run
+```bash
+npm run lint      # ESLint (angular-eslint)
+npm run test:ci   # single headless Karma run, as CI does
+```
+
 ### Watch Mode (development builds)
 ```bash
 npm run watch
@@ -138,7 +155,7 @@ This prevents low-review products from ranking too high.
 Products are deduplicated by ASIN (Amazon Standard Identification Number) to handle multiple listings of the same product. Results are filtered to only include products with valid ratings.
 
 ### Query Matching
-Search results are sorted by how many query terms appear in the product title (case-insensitive), then by Bayesian score.
+Each product gets a `matches` count of query terms found in its title (case-insensitive). The default "Best match" sort orders by that count, then by Bayesian score.
 
 ## Deployment
 
