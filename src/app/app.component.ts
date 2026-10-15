@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AmazonScraperService } from './amazon-scraper.service';
 import { ProductSearchResultComponent } from './product-search-result/product-search-result.component';
 import { ActivatedRoute } from '@angular/router';
+import { Product } from './product.model';
 import { LoaderComponent } from './loader/loader.component';
 
 @Component({
@@ -21,7 +22,7 @@ import { LoaderComponent } from './loader/loader.component';
 export class AppComponent {
   title = 'Amazon Search';
   query = '';
-  products: any[] = [];
+  products: Product[] = [];
   lastKey = '';
   loading = signal(false);
   error = signal<string | null>(null);
@@ -63,22 +64,22 @@ export class AppComponent {
         this.products = results
           .filter(
             (value, index, self) =>
-              index == self.indexOf(self.find((p) => p.aisn == value.aisn))
+              index == self.findIndex((p) => p.asin == value.asin)
           )
           .filter((p) => !!p.reviews.rating)
-          .sort((a, b) => b.score! - a.score!);
+          .sort((a, b) => b.score - a.score);
 
         const queryParts = this.query.split(/\s+/);
         this.products.forEach((p) => {
           p.matches = 0;
           queryParts.forEach((q) => {
-            if (p.title.toLowerCase().includes(q.toLowerCase())) p.matches++;
+            if (p.title.toLowerCase().includes(q.toLowerCase())) p.matches!++;
           });
         });
 
         this.products = this.products
           // .filter((p) => p.matches > 0)
-          .sort((a, b) => b.matches - a.matches);
+          .sort((a, b) => (b.matches ?? 0) - (a.matches ?? 0));
       })
       .catch((err: Error) => {
         this.error.set(err.message);

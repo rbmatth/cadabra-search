@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { Product } from '../product.model';
 import { Component, Inject, Input, LOCALE_ID, OnInit } from '@angular/core';
 
 @Component({
@@ -8,7 +9,7 @@ import { Component, Inject, Input, LOCALE_ID, OnInit } from '@angular/core';
   styleUrls: ['./product-search-result.component.css'],
 })
 export class ProductSearchResultComponent {
-  @Input() product: any;
+  @Input({ required: true }) product!: Product;
 
   constructor() {}
 }
