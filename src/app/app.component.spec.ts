@@ -152,7 +152,7 @@ describe('AppComponent', () => {
     it('does not reorder the underlying product list', () => {
       const before = app.products.map((p) => p.asin);
       app.sortBy = 'rating';
-      app.visibleProducts;
+      expect(app.visibleProducts.length).toBe(4);
 
       expect(app.products.map((p) => p.asin)).toEqual(before);
     });

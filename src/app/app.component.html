@@ -1,5 +1,6 @@
 <div id="content-container">
   <div id="search">
+    <!-- eslint-disable @angular-eslint/template/no-autofocus -->
     <input
       type="search"
       name="searchQuery"
@@ -9,6 +10,7 @@
       (keyup)="keyUp($event)"
       autofocus
     />
+    <!-- eslint-enable @angular-eslint/template/no-autofocus -->
     <button type="button" class="landscape" (click)="search()">Search</button>
     <button type="button" class="portrait" (click)="search()">🔍</button>
   </div>

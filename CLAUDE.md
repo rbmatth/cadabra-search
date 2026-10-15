@@ -103,7 +103,7 @@ npm run watch
 ```
 
 ### Code Quality
-- **Linting**: Not configured
+- **Linting**: ESLint via angular-eslint (`eslint.config.js`); run `npm run lint`. CI runs it before the tests
 - **Type Checking**: Enabled via `tsconfig.json` with strict mode
   - `strict: true`, `noImplicitReturns: true`, `noFallthroughCasesInSwitch: true`
 - **Angular Compiler Strict Mode**: Enabled
@@ -135,7 +135,7 @@ Search results are sorted by how many query terms appear in the product title (c
 
 ## Deployment
 
-Push to `main` automatically builds and deploys to GitHub Pages via `.github/workflows/main.yml`. There is no manual deploy step. CI runs `npm run test:ci` (headless Chrome via `karma.conf.js`) and then `ng build`; a failing test fails the build job, which blocks the deploy.
+Push to `main` automatically builds and deploys to GitHub Pages via `.github/workflows/main.yml`. There is no manual deploy step. CI runs `npm run lint`, `npm run test:ci` (headless Chrome via `karma.conf.js`) and then `ng build`; a failing test fails the build job, which blocks the deploy.
 
 ## Testing
 

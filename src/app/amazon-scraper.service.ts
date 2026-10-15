@@ -129,8 +129,8 @@ export class AmazonScraperService {
     };
 
     if (product.listPriceText) {
-      (price.before_price = extractPrice(product.listPriceText)),
-        (price.discounted = true);
+      price.before_price = extractPrice(product.listPriceText);
+      price.discounted = true;
 
       const savings = price.before_price - price.current_price;
       if (savings <= 0) {
@@ -148,7 +148,7 @@ export class AmazonScraperService {
     }
 
     const reviews = {
-      total_reviews: parseInt(product.totalReviewsText.replace(/\,/g, '')),
+      total_reviews: parseInt(product.totalReviewsText.replace(/,/g, '')),
       rating: parseFloat(product.ratingText),
     };
 
