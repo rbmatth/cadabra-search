@@ -1,10 +1,10 @@
 import { CommonModule, Location } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { AmazonScraperService } from './amazon-scraper.service';
 import { ProductSearchResultComponent } from './product-search-result/product-search-result.component';
-import { ActivatedRoute } from '@angular/router';
+import { Product } from './product.model';
 import { LoaderComponent } from './loader/loader.component';
 
 @Component({
@@ -18,18 +18,24 @@ import { LoaderComponent } from './loader/loader.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'Amazon Search';
   query = '';
-  products: any[] = [];
+  products: Product[] = [];
   lastKey = '';
   loading = signal(false);
   error = signal<string | null>(null);
   searched = false;
 
+  hideSponsored = false;
+  primeOnly = false;
+  sortBy: 'match' | 'rating' = 'match';
+  minRating = 0;
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+
   private _location = inject(Location);
   private _scraper = inject(AmazonScraperService);
-  private _route = inject(ActivatedRoute);
 
   ngOnInit() {
     const searchUrl = localStorage.getItem('searchUrl');
@@ -38,16 +44,21 @@ export class AppComponent {
       this._scraper.searchUrl = searchUrl;
     }
 
-    this._route.queryParams.subscribe((params) => {
-      const searchUrlParam = Object.keys(params)[0];
-      if (!searchUrlParam) return;
-
-      this._scraper.searchUrl = searchUrlParam;
+    // The whole query string is the search URL (?https://example.com/s?q=).
+    // Read it raw: Angular's query-param parsing would split it on ? and =.
+    const searchUrlParam = this._location.path().split('?').slice(1).join('?');
+    if (searchUrlParam) {
       this._location.go('/');
 
-      localStorage.setItem('searchUrl', searchUrlParam);
-      // console.log('searchUrl saved to local storage', searchUrlParam);
-    });
+      const invalid = this._scraper.validateSearchUrl(searchUrlParam);
+      if (invalid) {
+        this.error.set(invalid);
+      } else {
+        this._scraper.searchUrl = searchUrlParam;
+        localStorage.setItem('searchUrl', searchUrlParam);
+        // console.log('searchUrl saved to local storage', searchUrlParam);
+      }
+    }
 
     // this.query = '2.5g network switch'; this.search();
   }
@@ -63,22 +74,17 @@ export class AppComponent {
         this.products = results
           .filter(
             (value, index, self) =>
-              index == self.indexOf(self.find((p) => p.aisn == value.aisn))
+              index == self.findIndex((p) => p.asin == value.asin)
           )
-          .filter((p) => !!p.reviews.rating)
-          .sort((a, b) => b.score! - a.score!);
+          .filter((p) => !!p.reviews.rating);
 
         const queryParts = this.query.split(/\s+/);
         this.products.forEach((p) => {
           p.matches = 0;
           queryParts.forEach((q) => {
-            if (p.title.toLowerCase().includes(q.toLowerCase())) p.matches++;
+            if (p.title.toLowerCase().includes(q.toLowerCase())) p.matches!++;
           });
         });
-
-        this.products = this.products
-          // .filter((p) => p.matches > 0)
-          .sort((a, b) => b.matches - a.matches);
       })
       .catch((err: Error) => {
         this.error.set(err.message);
@@ -88,6 +94,25 @@ export class AppComponent {
         this.searched = true;
         this.loading.set(false);
       });
+  }
+
+  get visibleProducts(): Product[] {
+    const filtered = this.products.filter((p) => {
+      if (this.hideSponsored && p.sponsored) return false;
+      if (this.primeOnly && !p.amazonPrime) return false;
+      if (p.reviews.rating < this.minRating) return false;
+      if (this.minPrice != null && !(p.price.current_price >= this.minPrice))
+        return false;
+      if (this.maxPrice != null && !(p.price.current_price <= this.maxPrice))
+        return false;
+      return true;
+    });
+
+    return filtered.sort((a, b) =>
+      this.sortBy === 'match'
+        ? (b.matches ?? 0) - (a.matches ?? 0) || b.score - a.score
+        : b.score - a.score
+    );
   }
 
   keyUp = (event: KeyboardEvent) => {

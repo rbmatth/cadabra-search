@@ -76,6 +76,33 @@ div.thumbnail > div {
   margin-left: 4px;
 }
 
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 2px 0;
+}
+
+.badge {
+  font-size: x-small;
+  font-weight: bold;
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: white;
+}
+
+.best-seller {
+  background-color: #c45500;
+}
+
+.amazon-choice {
+  background-color: #232f3e;
+}
+
+.sponsored {
+  background-color: #999;
+}
+
 .savings {
   color: #c00;
   font-size: smaller;

@@ -1,5 +1,6 @@
 <div id="content-container">
   <div id="search">
+    <!-- eslint-disable @angular-eslint/template/no-autofocus -->
     <input
       type="search"
       name="searchQuery"
@@ -9,14 +10,45 @@
       (keyup)="keyUp($event)"
       autofocus
     />
+    <!-- eslint-enable @angular-eslint/template/no-autofocus -->
     <button type="button" class="landscape" (click)="search()">Search</button>
     <button type="button" class="portrait" (click)="search()">🔍</button>
+  </div>
+  <div id="filters" *ngIf="products.length > 0">
+    <label><input type="checkbox" [(ngModel)]="hideSponsored" /> Hide sponsored</label>
+    <label><input type="checkbox" [(ngModel)]="primeOnly" /> Prime only</label>
+    <label>
+      Sort
+      <select [(ngModel)]="sortBy">
+        <option value="match">Best match</option>
+        <option value="rating">Highest rated</option>
+      </select>
+    </label>
+    <label>
+      Min rating
+      <select [(ngModel)]="minRating">
+        <option [ngValue]="0">Any</option>
+        <option [ngValue]="3">3★+</option>
+        <option [ngValue]="3.5">3.5★+</option>
+        <option [ngValue]="4">4★+</option>
+        <option [ngValue]="4.5">4.5★+</option>
+      </select>
+    </label>
+    <label>
+      Price
+      <input type="number" min="0" placeholder="Min" [(ngModel)]="minPrice" />
+      –
+      <input type="number" min="0" placeholder="Max" [(ngModel)]="maxPrice" />
+    </label>
   </div>
   <br />
   <div *ngIf="error()" class="error">{{ error() }}</div>
   <div *ngIf="searched && !loading() && !error() && products.length === 0" class="empty">No results for "{{ query }}".</div>
+  <div *ngIf="!loading() && products.length > 0 && visibleProducts.length === 0" class="empty">
+    {{ products.length }} results hidden by filters.
+  </div>
   <div>
-    <div class="product-search-result" *ngFor="let product of products">
+    <div class="product-search-result" *ngFor="let product of visibleProducts">
       <app-product-search-result
         [product]="product"
       ></app-product-search-result>

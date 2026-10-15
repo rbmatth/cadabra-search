@@ -79,6 +79,12 @@ npm start
 # Auto-reloads on file changes
 ```
 
+### Local development against Amazon (CORS)
+The browser fetches the search URL directly, so a cross-origin URL needs CORS headers. `npm start` proxies `/amazon/*` to `https://www.amazon.com` via `proxy.conf.js` (override with `SEARCH_PROXY_TARGET`), so locally open:
+```
+http://localhost:4200/?http://localhost:4200/amazon/s?k=
+```
+
 ### Build for Production
 ```bash
 npm run build
@@ -103,7 +109,7 @@ npm run watch
 ```
 
 ### Code Quality
-- **Linting**: Not configured
+- **Linting**: ESLint via angular-eslint (`eslint.config.js`); run `npm run lint`. CI runs it before the tests
 - **Type Checking**: Enabled via `tsconfig.json` with strict mode
   - `strict: true`, `noImplicitReturns: true`, `noFallthroughCasesInSwitch: true`
 - **Angular Compiler Strict Mode**: Enabled
@@ -114,6 +120,7 @@ The app accepts search URL via URL query parameter:
 ```
 ?https://example.com/search?q=
 ```
+The whole query string is used verbatim as the search URL (it is read raw, because Angular's query-param parsing would split it on `?` and `=`), and it must be an `http(s)` URL.
 This is stored in localStorage for persistence. The AppComponent initializes search URL from localStorage or query params on init.
 
 ## Important Implementation Details
@@ -135,12 +142,14 @@ Search results are sorted by how many query terms appear in the product title (c
 
 ## Deployment
 
-Push to `main` automatically builds and deploys to GitHub Pages via `.github/workflows/main.yml`. There is no manual deploy step. CI runs `ng build` only — tests are not part of the pipeline and won't block a merge.
+Push to `main` automatically builds and deploys to GitHub Pages via `.github/workflows/main.yml`. There is no manual deploy step. CI runs `npm run lint`, `npm run test:ci` (headless Chrome via `karma.conf.js`) and then `ng build`; a failing test fails the build job, which blocks the deploy.
 
 ## Testing
 
 - Karma runs tests in Chrome; spec files follow Angular conventions (`*.spec.ts`)
-- Current test suites are minimal stubs
+- `amazon-scraper.service.spec.ts` runs the extract/transform/search paths against synthetic HTML in `src/app/testing/search-results.fixture.ts`. If Amazon's markup changes, update the service selectors and the fixture together.
+- `app.component.spec.ts` covers filtering and sorting (`visibleProducts`); `product-search-result.component.spec.ts` covers the card, badges and prices
+- Headless run: `npm run test:ci` (uses the `ChromeHeadlessCI` launcher in `karma.conf.js`, which adds `--no-sandbox`; set `CHROME_BIN` if Chrome isn't on the default path)
 
 ## Build Budgets
 

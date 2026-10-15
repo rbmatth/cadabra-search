@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as cheerio from 'cheerio';
+import type { Element } from 'domhandler';
+
+import { Price, Product, RawProduct } from './product.model';
 
 @Injectable({
   providedIn: 'root',
@@ -7,7 +10,30 @@ import * as cheerio from 'cheerio';
 export class AmazonScraperService {
   public searchUrl = '';
 
-  async search(query: string): Promise<any[]> {
+  /** Returns a user-facing message if the URL is unusable, else null. */
+  validateSearchUrl(searchUrl: string): string | null {
+    if (!searchUrl.trim()) {
+      return 'No search URL configured. Open the app with ?<search URL> appended to its address.';
+    }
+
+    let parsed: URL;
+    try {
+      parsed = new URL(searchUrl);
+    } catch {
+      return `Search URL is not a valid URL: ${searchUrl}`;
+    }
+
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return 'Search URL must start with http:// or https://.';
+    }
+
+    return null;
+  }
+
+  async search(query: string): Promise<Product[]> {
+    const invalid = this.validateSearchUrl(this.searchUrl);
+    if (invalid) throw new Error(invalid);
+
     const url = this.searchUrl + query;
 
     let response: Response;
@@ -30,13 +56,13 @@ export class AmazonScraperService {
     return products;
   }
 
-  extract(body: string) {
+  extract(body: string): Product[] {
     const $ = cheerio.load(body.replace(/\s\s+/g, '').replace(/\n/g, ''));
     const productList = $(`div[data-component-type="s-search-result"]`);
 
     return productList
       .toArray()
-      .map((product: any) => {
+      .map((product: Element) => {
         const $product = $(product);
         const asin = product.attribs['data-asin'];
 
@@ -66,7 +92,7 @@ export class AmazonScraperService {
             .find(`[data-csa-c-slot-id="alf-reviews"] *`)
             .attr('aria-label') ?? '';
 
-        const result = {
+        const result: RawProduct = {
           asin,
           title,
           thumbnail,
@@ -83,16 +109,17 @@ export class AmazonScraperService {
         const transformedResult = this.transform(result);
         return transformedResult;
       })
-      .filter((p: any) => !isNaN(p.reviews.rating));
+      
+      .filter((p) => !isNaN(p.reviews.rating));
   }
 
-  transform(product: any) {
+  transform(product: RawProduct): Product {
     const NUM_REVIEWS = 100;
     const AVG_RATING = 2.25;
 
     const url = 'https://www.amazon.com/dp/' + product.asin;
 
-    const price = {
+    const price: Price = {
       discounted: false,
       current_price: extractPrice(product.priceText),
       currency: '$',
@@ -102,8 +129,8 @@ export class AmazonScraperService {
     };
 
     if (product.listPriceText) {
-      (price.before_price = extractPrice(product.listPriceText)),
-        (price.discounted = true);
+      price.before_price = extractPrice(product.listPriceText);
+      price.discounted = true;
 
       const savings = price.before_price - price.current_price;
       if (savings <= 0) {
@@ -121,7 +148,7 @@ export class AmazonScraperService {
     }
 
     const reviews = {
-      total_reviews: parseInt(product.totalReviewsText.replace(/\,/g, '')),
+      total_reviews: parseInt(product.totalReviewsText.replace(/,/g, '')),
       rating: parseFloat(product.ratingText),
     };
 
@@ -129,9 +156,8 @@ export class AmazonScraperService {
       (reviews.rating * reviews.total_reviews + NUM_REVIEWS * AVG_RATING) /
       (reviews.total_reviews + NUM_REVIEWS);
 
-    const result = {
-      dto: product,
-      aisn: product.asin,
+    const result: Product = {
+      asin: product.asin,
       title: product.title,
       thumbnail: product.thumbnail,
       price,

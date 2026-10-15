@@ -3,7 +3,7 @@
   <a [href]="product.url" target="_blank">
     <div class="thumbnail">
       <div>
-        <img [src]="product.thumbnail">
+        <img [src]="product.thumbnail" [alt]="product.title">
       </div>
     </div>
   </a>
@@ -11,6 +11,11 @@
   <div>
     <div class="title">
       <a [href]="product.url" target="_blank"> {{ product.title }} </a>
+    </div>
+    <div class="badges" *ngIf="product.bestSeller || product.amazonChoice || product.sponsored">
+      <span class="badge best-seller" *ngIf="product.bestSeller">Best Seller</span>
+      <span class="badge amazon-choice" *ngIf="product.amazonChoice">Amazon's Choice</span>
+      <span class="badge sponsored" *ngIf="product.sponsored">Sponsored</span>
     </div>
     <div>
       <!-- [{{ product.score.toFixed(2) }}] -->
