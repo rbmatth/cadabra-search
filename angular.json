@@ -62,7 +62,8 @@
               "buildTarget": "cadabra-search:build:production"
             },
             "development": {
-              "buildTarget": "cadabra-search:build:development"
+              "buildTarget": "cadabra-search:build:development",
+              "proxyConfig": "proxy.conf.js"
             }
           },
           "defaultConfiguration": "development"

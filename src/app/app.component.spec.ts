@@ -1,5 +1,6 @@
-import { ActivatedRoute, provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { Location } from '@angular/common';
+import { provideLocationMocks } from '@angular/common/testing';
+import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 
 import { AppComponent } from './app.component';
@@ -54,15 +55,16 @@ describe('AppComponent', () => {
   });
 
   describe('search URL from the query string', () => {
-    const create = (params: Record<string, string>) => {
+    const create = (rawQuery: string) => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         imports: [AppComponent],
         providers: [
           provideRouter([]),
-          { provide: ActivatedRoute, useValue: { queryParams: of(params) } },
+          provideLocationMocks(),
         ],
       });
+      TestBed.inject(Location).go('/?' + rawQuery);
       const fixture = TestBed.createComponent(AppComponent);
       fixture.detectChanges();
       return fixture.componentInstance;
@@ -72,16 +74,16 @@ describe('AppComponent', () => {
     afterEach(() => localStorage.removeItem('searchUrl'));
 
     it('stores a valid URL and uses it for searching', () => {
-      create({ 'https://example.com/search?q': '' });
+      create('https://example.com/search?q=');
 
       expect(TestBed.inject(AmazonScraperService).searchUrl).toBe(
-        'https://example.com/search?q'
+        'https://example.com/search?q='
       );
-      expect(localStorage.getItem('searchUrl')).toBe('https://example.com/search?q');
+      expect(localStorage.getItem('searchUrl')).toBe('https://example.com/search?q=');
     });
 
     it('shows an error and does not store an invalid URL', () => {
-      const component = create({ 'not a url': '' });
+      const component = create('not a url');
 
       expect(component.error()).toContain('not a valid URL');
       expect(localStorage.getItem('searchUrl')).toBeNull();

@@ -79,6 +79,12 @@ npm start
 # Auto-reloads on file changes
 ```
 
+### Local development against Amazon (CORS)
+The browser fetches the search URL directly, so a cross-origin URL needs CORS headers. `npm start` proxies `/amazon/*` to `https://www.amazon.com` via `proxy.conf.js` (override with `SEARCH_PROXY_TARGET`), so locally open:
+```
+http://localhost:4200/?http://localhost:4200/amazon/s?k=
+```
+
 ### Build for Production
 ```bash
 npm run build
@@ -114,6 +120,7 @@ The app accepts search URL via URL query parameter:
 ```
 ?https://example.com/search?q=
 ```
+The whole query string is used verbatim as the search URL (it is read raw, because Angular's query-param parsing would split it on `?` and `=`), and it must be an `http(s)` URL.
 This is stored in localStorage for persistence. The AppComponent initializes search URL from localStorage or query params on init.
 
 ## Important Implementation Details

@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 
 import { AmazonScraperService } from './amazon-scraper.service';
 import { ProductSearchResultComponent } from './product-search-result/product-search-result.component';
-import { ActivatedRoute } from '@angular/router';
 import { Product } from './product.model';
 import { LoaderComponent } from './loader/loader.component';
 
@@ -37,7 +36,6 @@ export class AppComponent implements OnInit {
 
   private _location = inject(Location);
   private _scraper = inject(AmazonScraperService);
-  private _route = inject(ActivatedRoute);
 
   ngOnInit() {
     const searchUrl = localStorage.getItem('searchUrl');
@@ -46,22 +44,21 @@ export class AppComponent implements OnInit {
       this._scraper.searchUrl = searchUrl;
     }
 
-    this._route.queryParams.subscribe((params) => {
-      const searchUrlParam = Object.keys(params)[0];
-      if (!searchUrlParam) return;
-
+    // The whole query string is the search URL (?https://example.com/s?q=).
+    // Read it raw: Angular's query-param parsing would split it on ? and =.
+    const searchUrlParam = this._location.path().split('?').slice(1).join('?');
+    if (searchUrlParam) {
       this._location.go('/');
 
       const invalid = this._scraper.validateSearchUrl(searchUrlParam);
       if (invalid) {
         this.error.set(invalid);
-        return;
+      } else {
+        this._scraper.searchUrl = searchUrlParam;
+        localStorage.setItem('searchUrl', searchUrlParam);
+        // console.log('searchUrl saved to local storage', searchUrlParam);
       }
-
-      this._scraper.searchUrl = searchUrlParam;
-      localStorage.setItem('searchUrl', searchUrlParam);
-      // console.log('searchUrl saved to local storage', searchUrlParam);
-    });
+    }
 
     // this.query = '2.5g network switch'; this.search();
   }
