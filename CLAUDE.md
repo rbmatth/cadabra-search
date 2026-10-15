@@ -137,7 +137,12 @@ The app accepts search URL via URL query parameter:
 ```
 ?https://example.com/search?q=
 ```
-The whole query string is used verbatim as the search URL (it is read raw, because Angular's query-param parsing would split it on `?` and `=`), and it must be an `http(s)` URL.
+The whole query string is the search URL, and it must be an `http(s)` URL. A plain URL is read raw and kept verbatim (Angular's query-param parsing would split it on `?` and `=`). A percent-encoded URL is decoded, with one trailing `=` dropped as the key/value separator, so both of these work:
+```
+?https://proxy.example/https://www.amazon.com/s?k=
+?https:%2F%2Fproxy.example%2Fhttps:%2F%2Fwww.amazon.com%2Fs%3Fk%3D=
+```
+(see `parseSearchUrlParam` in `app.component.ts`).
 This is stored in localStorage for persistence. The AppComponent initializes search URL from localStorage or query params on init.
 
 ## Important Implementation Details

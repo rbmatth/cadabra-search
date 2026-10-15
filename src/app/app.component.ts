@@ -7,6 +7,23 @@ import { ProductSearchResultComponent } from './product-search-result/product-se
 import { Product } from './product.model';
 import { LoaderComponent } from './loader/loader.component';
 
+/**
+ * The whole query string is the search URL. It is read raw because Angular's
+ * query-param parsing would split a plain URL (?https://example.com/s?q=) on
+ * ? and =. A percent-encoded URL (?https:%2F%2Fexample.com%2Fs%3Fq%3D=) is
+ * decoded; there the final = is only the key/value separator and is dropped.
+ */
+export function parseSearchUrlParam(rawQuery: string): string {
+  if (!/%[0-9a-f]{2}/i.test(rawQuery)) return rawQuery;
+
+  const encoded = rawQuery.endsWith('=') ? rawQuery.slice(0, -1) : rawQuery;
+  try {
+    return decodeURIComponent(encoded);
+  } catch {
+    return rawQuery; // malformed escape; let URL validation report it
+  }
+}
+
 @Component({
   selector: 'app-root',
   imports: [
@@ -44,9 +61,9 @@ export class AppComponent implements OnInit {
       this._scraper.searchUrl = searchUrl;
     }
 
-    // The whole query string is the search URL (?https://example.com/s?q=).
-    // Read it raw: Angular's query-param parsing would split it on ? and =.
-    const searchUrlParam = this._location.path().split('?').slice(1).join('?');
+    const searchUrlParam = parseSearchUrlParam(
+      this._location.path().split('?').slice(1).join('?')
+    );
     if (searchUrlParam) {
       this._location.go('/');
 

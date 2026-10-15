@@ -3,7 +3,7 @@ import { provideLocationMocks } from '@angular/common/testing';
 import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 
-import { AppComponent } from './app.component';
+import { AppComponent, parseSearchUrlParam } from './app.component';
 import { AmazonScraperService } from './amazon-scraper.service';
 import { Product } from './product.model';
 
@@ -54,6 +54,29 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('Amazon Search');
   });
 
+  describe('parseSearchUrlParam', () => {
+    it('keeps a plain URL verbatim, including a trailing =', () => {
+      expect(parseSearchUrlParam('https://example.com/s?k=')).toBe(
+        'https://example.com/s?k='
+      );
+    });
+
+    it('decodes an encoded URL whether or not it ends with the separator', () => {
+      expect(parseSearchUrlParam('https:%2F%2Fexample.com%2Fs%3Fk%3D=')).toBe(
+        'https://example.com/s?k='
+      );
+      expect(parseSearchUrlParam('https:%2F%2Fexample.com%2Fs%3Fk%3D')).toBe(
+        'https://example.com/s?k='
+      );
+    });
+
+    it('falls back to the raw text on a malformed escape', () => {
+      expect(parseSearchUrlParam('https://example.com/%E0%A4%A')).toBe(
+        'https://example.com/%E0%A4%A'
+      );
+    });
+  });
+
   describe('search URL from the query string', () => {
     const create = (rawQuery: string) => {
       TestBed.resetTestingModule();
@@ -80,6 +103,16 @@ describe('AppComponent', () => {
         'https://example.com/search?q='
       );
       expect(localStorage.getItem('searchUrl')).toBe('https://example.com/search?q=');
+    });
+
+    it('decodes a percent-encoded URL and drops the trailing separator', () => {
+      create(
+        'https:%2F%2Fproxy.example.xyz%2Fhttps:%2F%2Fwww.amazon.com%2Fs%3Fk%3D='
+      );
+
+      const expected = 'https://proxy.example.xyz/https://www.amazon.com/s?k=';
+      expect(TestBed.inject(AmazonScraperService).searchUrl).toBe(expected);
+      expect(localStorage.getItem('searchUrl')).toBe(expected);
     });
 
     it('shows an error and does not store an invalid URL', () => {
