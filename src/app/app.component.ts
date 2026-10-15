@@ -28,6 +28,12 @@ export class AppComponent {
   error = signal<string | null>(null);
   searched = false;
 
+  hideSponsored = false;
+  primeOnly = false;
+  minRating = 0;
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+
   private _location = inject(Location);
   private _scraper = inject(AmazonScraperService);
   private _route = inject(ActivatedRoute);
@@ -89,6 +95,19 @@ export class AppComponent {
         this.searched = true;
         this.loading.set(false);
       });
+  }
+
+  get visibleProducts(): Product[] {
+    return this.products.filter((p) => {
+      if (this.hideSponsored && p.sponsored) return false;
+      if (this.primeOnly && !p.amazonPrime) return false;
+      if (p.reviews.rating < this.minRating) return false;
+      if (this.minPrice != null && !(p.price.current_price >= this.minPrice))
+        return false;
+      if (this.maxPrice != null && !(p.price.current_price <= this.maxPrice))
+        return false;
+      return true;
+    });
   }
 
   keyUp = (event: KeyboardEvent) => {

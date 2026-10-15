@@ -54,6 +54,25 @@
   }
 }
 
+#filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+  font-size: smaller;
+}
+
+#filters label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+#filters input[type='number'] {
+  width: 5rem;
+}
+
 .error {
   color: #c00;
   text-align: center;

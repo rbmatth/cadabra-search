@@ -12,6 +12,11 @@
     <div class="title">
       <a [href]="product.url" target="_blank"> {{ product.title }} </a>
     </div>
+    <div class="badges" *ngIf="product.bestSeller || product.amazonChoice || product.sponsored">
+      <span class="badge best-seller" *ngIf="product.bestSeller">Best Seller</span>
+      <span class="badge amazon-choice" *ngIf="product.amazonChoice">Amazon's Choice</span>
+      <span class="badge sponsored" *ngIf="product.sponsored">Sponsored</span>
+    </div>
     <div>
       <!-- [{{ product.score.toFixed(2) }}] -->
       {{ product.reviews.rating.toFixed(1) }}<span class="star">★ </span>
