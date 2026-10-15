@@ -143,6 +143,27 @@ describe('AmazonScraperService', () => {
     });
   });
 
+  describe('validateSearchUrl', () => {
+    it('accepts http and https URLs', () => {
+      expect(service.validateSearchUrl('https://example.com/search?q=')).toBeNull();
+      expect(service.validateSearchUrl('http://localhost:8080/s?k=')).toBeNull();
+    });
+
+    it('rejects an empty or blank URL', () => {
+      expect(service.validateSearchUrl('')).toContain('No search URL configured');
+      expect(service.validateSearchUrl('   ')).toContain('No search URL configured');
+    });
+
+    it('rejects text that is not a URL', () => {
+      expect(service.validateSearchUrl('example.com/search?q=')).toContain('not a valid URL');
+    });
+
+    it('rejects non-http protocols', () => {
+      expect(service.validateSearchUrl('ftp://example.com/')).toContain('http:// or https://');
+      expect(service.validateSearchUrl('javascript:alert(1)')).toContain('http:// or https://');
+    });
+  });
+
   describe('search', () => {
     let fetchSpy: jasmine.Spy;
 
@@ -160,6 +181,15 @@ describe('AmazonScraperService', () => {
         'https://example.com/search?q=switch'
       );
       expect(products.length).toBe(3);
+    });
+
+    it('rejects without fetching when the search URL is invalid', async () => {
+      service.searchUrl = '';
+
+      await expectAsync(service.search('x')).toBeRejectedWithError(
+        /No search URL configured/
+      );
+      expect(fetchSpy).not.toHaveBeenCalled();
     });
 
     it('rejects with a readable message on a network failure', async () => {

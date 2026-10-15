@@ -10,7 +10,30 @@ import { Price, Product, RawProduct } from './product.model';
 export class AmazonScraperService {
   public searchUrl = '';
 
+  /** Returns a user-facing message if the URL is unusable, else null. */
+  validateSearchUrl(searchUrl: string): string | null {
+    if (!searchUrl.trim()) {
+      return 'No search URL configured. Open the app with ?<search URL> appended to its address.';
+    }
+
+    let parsed: URL;
+    try {
+      parsed = new URL(searchUrl);
+    } catch {
+      return `Search URL is not a valid URL: ${searchUrl}`;
+    }
+
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return 'Search URL must start with http:// or https://.';
+    }
+
+    return null;
+  }
+
   async search(query: string): Promise<Product[]> {
+    const invalid = this.validateSearchUrl(this.searchUrl);
+    if (invalid) throw new Error(invalid);
+
     const url = this.searchUrl + query;
 
     let response: Response;

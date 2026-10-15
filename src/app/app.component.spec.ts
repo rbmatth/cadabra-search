@@ -1,7 +1,9 @@
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 
 import { AppComponent } from './app.component';
+import { AmazonScraperService } from './amazon-scraper.service';
 import { Product } from './product.model';
 
 const product = (
@@ -49,6 +51,42 @@ describe('AppComponent', () => {
 
   it('has the app title', () => {
     expect(app.title).toEqual('Amazon Search');
+  });
+
+  describe('search URL from the query string', () => {
+    const create = (params: Record<string, string>) => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [AppComponent],
+        providers: [
+          provideRouter([]),
+          { provide: ActivatedRoute, useValue: { queryParams: of(params) } },
+        ],
+      });
+      const fixture = TestBed.createComponent(AppComponent);
+      fixture.detectChanges();
+      return fixture.componentInstance;
+    };
+
+    beforeEach(() => localStorage.removeItem('searchUrl'));
+    afterEach(() => localStorage.removeItem('searchUrl'));
+
+    it('stores a valid URL and uses it for searching', () => {
+      create({ 'https://example.com/search?q': '' });
+
+      expect(TestBed.inject(AmazonScraperService).searchUrl).toBe(
+        'https://example.com/search?q'
+      );
+      expect(localStorage.getItem('searchUrl')).toBe('https://example.com/search?q');
+    });
+
+    it('shows an error and does not store an invalid URL', () => {
+      const component = create({ 'not a url': '' });
+
+      expect(component.error()).toContain('not a valid URL');
+      expect(localStorage.getItem('searchUrl')).toBeNull();
+      expect(TestBed.inject(AmazonScraperService).searchUrl).toBe('');
+    });
   });
 
   describe('visibleProducts', () => {

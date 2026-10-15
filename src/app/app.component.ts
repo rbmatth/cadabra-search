@@ -50,9 +50,15 @@ export class AppComponent {
       const searchUrlParam = Object.keys(params)[0];
       if (!searchUrlParam) return;
 
-      this._scraper.searchUrl = searchUrlParam;
       this._location.go('/');
 
+      const invalid = this._scraper.validateSearchUrl(searchUrlParam);
+      if (invalid) {
+        this.error.set(invalid);
+        return;
+      }
+
+      this._scraper.searchUrl = searchUrlParam;
       localStorage.setItem('searchUrl', searchUrlParam);
       // console.log('searchUrl saved to local storage', searchUrlParam);
     });
