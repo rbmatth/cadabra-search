@@ -140,7 +140,9 @@ Push to `main` automatically builds and deploys to GitHub Pages via `.github/wor
 ## Testing
 
 - Karma runs tests in Chrome; spec files follow Angular conventions (`*.spec.ts`)
-- Current test suites are minimal stubs
+- `amazon-scraper.service.spec.ts` runs the extract/transform/search paths against synthetic HTML in `src/app/testing/search-results.fixture.ts`. If Amazon's markup changes, update the service selectors and the fixture together.
+- `app.component.spec.ts` covers filtering and sorting (`visibleProducts`); `product-search-result.component.spec.ts` covers the card, badges and prices
+- Headless run: `npm test -- --watch=false --browsers=ChromeHeadless` (as root/in containers, point `CHROME_BIN` at a wrapper that adds `--no-sandbox`)
 
 ## Build Budgets
 
