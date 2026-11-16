@@ -60,9 +60,8 @@ The `AmazonScraperService` does two-step processing:
   - Bayesian scoring (combines product rating with review count to surface highly-rated products with substantial reviews)
 
 ### State Management
-- Uses Angular signals (`signal()`) for reactive UI state (loading state)
-- AppComponent manages product list and search query
-- No global state container; component-level state via signals and RxJS subscriptions
+- `AppComponent` holds all UI state: `loading` and `error` signals, `searched` boolean (set after first search completes to guard the empty-results message), `products` array, and `query` string
+- No global state container; component-level state via signals and plain properties
 - LocalStorage persists search URL across sessions
 
 ### Responsive Design
@@ -135,7 +134,7 @@ score = (rating * total_reviews + NUM_REVIEWS * AVG_RATING) / (total_reviews + N
 This prevents low-review products from ranking too high.
 
 ### Deduplication & Filtering
-Products are deduplicated by ASIN (Amazon Standard Identification Number) to handle multiple listings of the same product. Results are filtered to only include products with valid ratings.
+Products are deduplicated by ASIN to handle multiple listings of the same product. Results are filtered to only include products with valid ratings. Note: the dedup key on the transformed product object is spelled `aisn` (a typo of `asin`) — both the service and the component use this misspelling consistently, so deduplication works. Do not rename one side without the other.
 
 ### Query Matching
 Search results are sorted by how many query terms appear in the product title (case-insensitive), then by Bayesian score.
